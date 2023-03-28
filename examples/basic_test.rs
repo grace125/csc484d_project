@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use knyst::{prelude::*, wavetable::WavetableOscillatorOwned, graph::NodeAddress};
+use knyst::{prelude::*, wavetable::WavetableOscillatorOwned};
 use project::{KnystAudioPlugin, AudioCommands, AudioStartupSet};
 
 fn main() {
@@ -10,7 +10,7 @@ fn main() {
         .run();
 }
 
-fn initialize_graph(mut a_commands: ResMut<AudioCommands>, mut commands: Commands) {
+fn initialize_graph(mut a_commands: ResMut<AudioCommands>) {
     let node0 = a_commands.push(
         WavetableOscillatorOwned::new(Wavetable::sine()),
         inputs!(("freq" : 440.)),
