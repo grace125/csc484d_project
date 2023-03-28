@@ -1,0 +1,51 @@
+[package]
+name = "project"
+version = "0.1.0"
+edition = "2021"
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.dev]
+opt-level = 1
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies.bevy]
+version = "0.10"
+default-features = false
+features = [
+  "bevy_animation",
+  "bevy_asset",
+#   "bevy_audio",
+  "bevy_gilrs",
+  "bevy_scene",
+  "bevy_winit",
+  "bevy_core_pipeline",
+  "bevy_pbr",
+  "bevy_gltf",
+  "bevy_render",
+  "bevy_sprite",
+  "bevy_text",
+  "bevy_ui",
+  "png",
+  "hdr",
+  "ktx2",
+  "zstd",
+  "vorbis",
+  "x11",
+  "filesystem_watcher",
+  "android_shared_stdcxx",
+  "tonemapping_luts"
+]
+
+[dependencies]
+bevy_egui = "0.20.2"
+knyst = "0.4.0"
+
+[dev-dependencies]
+anyhow = "1.0.69"
+atomic_float = "0.1.0"
+clap = "4.1.8"
+cpal = "0.15.0"
+
