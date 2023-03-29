@@ -1,9 +1,9 @@
-use bevy::{prelude::*, math::Vec3Swizzles, window::PrimaryWindow, utils::HashMap, input::mouse::MouseMotion};
+use bevy::{prelude::*, math::Vec3Swizzles, utils::HashMap,};
 use bevy_prototype_lyon::{prelude::{ShapeBundle, GeometryBuilder}, shapes};
 
 pub use bevy_prototype_lyon::prelude::Fill;
 
-use crate::{AppSet, camera::PrimaryCamera, Mode, ui::egui_unfocused};
+use crate::{AppSet, camera::PrimaryCamera, Mode, ui::egui_unfocused, helper::LastPrimaryCursorPos};
 
 pub struct GraphPlugin;
 
@@ -111,33 +111,22 @@ pub(crate) struct GraphSelection {
 // Change this when bevy spatial updates to 0.10.
 fn select(
     mut commands: Commands, 
-    mut cursor_moved_ev: EventReader<CursorMoved>,
     input: Res<Input<MouseButton>>,
-    mut mouse_pos: Local<Option<CursorMoved>>,
-    primary_window: Query<(), With<PrimaryWindow>>,
+    last_cursor_move: Res<LastPrimaryCursorPos>,
     camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
     vertices: Query<(Entity, &GlobalTransform, &Vertex)>,
     // edges: Query<&GlobalTransform, With<Edge>>,
 ) {
-    if let Some(moved) = cursor_moved_ev.into_iter().last() { 
-        *mouse_pos = Some(moved.clone());
-    };
-    
     if input.just_pressed(MouseButton::Left) {
-
-        let (camera, camera_transform) = camera.single();
-
-        let Some(CursorMoved { window, position: mouse_position }) = *mouse_pos else { 
+        let Some(last_cursor_pos) = last_cursor_move.0 else { 
             commands.remove_resource::<GraphSelection>();
             return; 
         };
 
-        if !primary_window.contains(window) {
-            commands.remove_resource::<GraphSelection>();
-            return; 
-        }
+        let (camera, camera_transform) = camera.single();
 
-        let Some(click_pos) = camera.viewport_to_world_2d(camera_transform, mouse_position) else {
+        let Some(click_pos) = camera.viewport_to_world_2d(camera_transform, last_cursor_pos) 
+        else {
             commands.remove_resource::<GraphSelection>();
             return; 
         };
@@ -157,34 +146,41 @@ fn select(
     }
 }
 
+fn quantize(f: f32) -> f32 {
+    (f/20.0).round() * 20.0
+}
 
+// TODO: make it so that clicking a node doesn't move it.
 fn drag_node(
-    mut motion_evr: EventReader<MouseMotion>,
     mut transforms: Query<&mut Transform>,
     selection: Res<GraphSelection>,
     input: Res<Input<MouseButton>>,
-    mut drag_pos: Local<Option<Vec2>>,
-) {
-    if selection.is_changed() {
-        *drag_pos = None;
-    }
-    if input.pressed(MouseButton::Left) {
-        let Ok(mut transform) = transforms.get_mut(selection.entity) else {
-            return
-        };
+    last_cursor_pos: Res<LastPrimaryCursorPos>,
+    mut cursor_node_diff: Local<Option<Vec2>>,
 
-        if *drag_pos == None {
-            *drag_pos = Some(transform.translation.xy());
+    camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
+) {
+    if input.just_pressed(MouseButton::Left) {
+        *cursor_node_diff = None;
+    }
+    else if input.pressed(MouseButton::Left) {
+        let Ok(mut selection_transform) = transforms.get_mut(selection.entity) 
+            else { return };
+        let (camera, camera_transform) = camera.single();
+        let Some(last_cursor_pos) = last_cursor_pos.0 else { return };
+        let Some(world_cursor_pos) = camera.viewport_to_world_2d(camera_transform, last_cursor_pos) 
+            else { return };
+
+        if *cursor_node_diff == None {
+            *cursor_node_diff = Some(world_cursor_pos - selection_transform.translation.xy());
         }
 
-        let Some(drag_pos) = &mut *drag_pos else { return };
+        let Some(cursor_node_diff) = *cursor_node_diff else { return };
         
-        let delta: Vec2 = motion_evr.into_iter().map(|ev| ev.delta).sum();
+        let new_transform = world_cursor_pos + cursor_node_diff;
 
-        drag_pos.x += delta.x;
-        drag_pos.y -= delta.y;
-        transform.translation.x = (drag_pos.x/20.0).round() * 20.0;
-        transform.translation.y = (drag_pos.y/20.0).round() * 20.0;
+        selection_transform.translation.x = quantize(new_transform.x);
+        selection_transform.translation.y = quantize(new_transform.y);
     }
 }
 

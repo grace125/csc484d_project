@@ -1,14 +1,16 @@
 pub mod ui;
 pub mod graph;
 pub mod camera;
+pub mod helper;
 mod audio;
 
 pub use audio::*;
-use bevy_prototype_lyon::prelude::ShapePlugin;
+use helper::HelperPlugin;
 pub use ui::Mode;
 
 use bevy::{prelude::{PluginGroup, SystemSet}, app::PluginGroupBuilder};
 use bevy_egui::EguiPlugin;
+use bevy_prototype_lyon::prelude::ShapePlugin;
 
 #[derive(SystemSet, Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppSet {
@@ -28,6 +30,7 @@ impl PluginGroup for AppPlugins {
         PluginGroupBuilder::start::<Self>()
             .add(KnystAudioPlugin)
             .add(ShapePlugin)
+            .add(HelperPlugin)
             .add(EguiPlugin)
             .add(ui::UiPlugin)
             .add(graph::GraphPlugin)
