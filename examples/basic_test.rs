@@ -1,12 +1,12 @@
 use bevy::prelude::*;
 use knyst::{prelude::*, wavetable::WavetableOscillatorOwned};
-use project::{KnystAudioPlugin, AudioCommands, AudioStartupSet};
+use project::{KnystAudioPlugin, AudioCommands, AppSet};
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugin(KnystAudioPlugin)
-        .add_startup_system(initialize_graph.after(AudioStartupSet))
+        .add_startup_system(initialize_graph.after(AppSet::AudioStartup))
         .run();
 }
 

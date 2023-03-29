@@ -41,6 +41,7 @@ features = [
 
 [dependencies]
 bevy_egui = "0.20.2"
+bevy_prototype_lyon = "0.8.0"
 knyst = "0.4.0"
 
 [dev-dependencies]

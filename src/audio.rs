@@ -1,21 +1,21 @@
 use std::time::Duration;
 
-use bevy::{prelude::{Plugin, World, Resource, Deref, DerefMut, SystemSet, IntoSystemSetConfig, StartupSet, IntoSystemConfig}, tasks::IoTaskPool};
+use bevy::{prelude::{Plugin, World, Resource, Deref, DerefMut, IntoSystemSetConfig, StartupSet, IntoSystemConfig}, tasks::IoTaskPool};
 use knyst::{
     audio_backend::{CpalBackend, CpalBackendOptions}, 
     prelude::{AudioBackend, Graph, GraphSettings, RunGraphSettings}, 
     controller::KnystCommands
 };
 
-#[derive(SystemSet, Debug, Clone, Eq, PartialEq, Hash)]
-pub struct AudioStartupSet;
+use crate::AppSet;
+
 
 pub struct KnystAudioPlugin;
 
 impl Plugin for KnystAudioPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app .configure_set(AudioStartupSet.in_base_set(StartupSet::Startup))
-            .add_startup_system(setup_knyst_graph.in_set(AudioStartupSet));
+        app .configure_set(AppSet::AudioStartup.in_base_set(StartupSet::Startup))
+            .add_startup_system(setup_knyst_graph.in_set(AppSet::AudioStartup));
     }
 }
 
