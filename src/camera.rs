@@ -39,7 +39,6 @@ fn pan_camera(
     last_cursor_pos: Res<LastPrimaryCursorPos>,
     mut camera_diff: Local<Vec2>,  
     mut camera_click_global_transform: Local<GlobalTransform>,  
-
 ) {
     if input.just_pressed(MouseButton::Left) {
         *camera_diff = Vec2::ZERO;

@@ -29,23 +29,25 @@ impl Plugin for UiPlugin {
                 AppSet::Ui.in_base_set(CoreSet::Update),
             ))
             .add_startup_system(setup.in_set(AppSet::UiStartup))
-            .add_system(top_menu.in_set(AppSet::Ui))
-            .add_system(update_egui_hover.in_base_set(CoreSet::Last))
-            .add_system(
+            .add_systems((
+                top_menu,
                 edit_menu
-                    .in_set(OnUpdate(Mode::Edit))
                     .run_if(resource_exists::<GraphSelection>())
+                    .run_if(state_exists_and_equals(Mode::Edit)),
+                settings_menu
+                    .run_if(state_exists_and_equals(Mode::Settings)),
+                save_load_menu
+                    .run_if(state_exists_and_equals(Mode::SaveLoad))
             )
-            .add_system(settings_menu.in_set(OnUpdate(Mode::Settings)))
-            .add_system(save_load_menu.in_set(OnUpdate(Mode::SaveLoad)));
+                .chain()
+                .in_set(AppSet::Ui)
+            )
+            .add_system(update_egui_hover.in_base_set(CoreSet::Last));
     }
 }
 
 fn setup() {
-    let _ = egui::SidePanel::left(Id::new(SETTING_PANEL_ID));
-    let _ = egui::SidePanel::left(Id::new(EDIT_PANEL_ID));
-    let _ = egui::SidePanel::left(Id::new(SAVE_LOAD_PANEL_ID));
-    let _ = egui::TopBottomPanel::top(Id::new(TOP_PANEL_ID));
+
 }
 
 fn top_menu(
@@ -76,23 +78,34 @@ fn top_menu(
 }
 
 fn settings_menu(
-    mut _contexts: EguiContexts,
+    mut contexts: EguiContexts,
 ) {
-
+    egui::SidePanel::left(Id::new(SETTING_PANEL_ID)).show(contexts.ctx_mut(), |ui| {
+        ui.label("Settings: TODO");
+    });
 }
 
 fn edit_menu(
+    mut commands: Commands,
     mut contexts: EguiContexts,
-    selection: Res<GraphSelection>
+    selection: Res<GraphSelection>,
 ) {
     egui::SidePanel::left(Id::new(EDIT_PANEL_ID)).show(contexts.ctx_mut(), |ui| {
-        ui.label(format!("{:?}", selection.entity));
+        ui.label(format!("{:?}", selection));
+        let entity = match *selection { GraphSelection::Edge(e) | GraphSelection::Vertex(e) => e };
+        if ui.button("Delete").clicked() {
+            commands.entity(entity).despawn();
+            commands.remove_resource::<GraphSelection>()
+        }
     });
 }
 
 fn save_load_menu(
-    mut _contexts: EguiContexts,
+    mut contexts: EguiContexts,
 ) {
+    egui::SidePanel::left(Id::new(SAVE_LOAD_PANEL_ID)).show(contexts.ctx_mut(), |ui| {
+        ui.label("Save/Load: TODO");
+    });
 
 }
 

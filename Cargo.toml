@@ -15,15 +15,15 @@ opt-level = 1
 version = "0.10"
 default-features = false
 features = [
-  "bevy_animation",
+# "bevy_animation",
   "bevy_asset",
 #   "bevy_audio",
   "bevy_gilrs",
   "bevy_scene",
   "bevy_winit",
   "bevy_core_pipeline",
-  "bevy_pbr",
-  "bevy_gltf",
+  # "bevy_pbr",
+  # "bevy_gltf",
   "bevy_render",
   "bevy_sprite",
   "bevy_text",
@@ -34,8 +34,8 @@ features = [
   "zstd",
   "vorbis",
   "x11",
-  "filesystem_watcher",
-  "android_shared_stdcxx",
+  # "filesystem_watcher",
+  # "android_shared_stdcxx",
   "tonemapping_luts"
 ]
 
@@ -49,4 +49,4 @@ anyhow = "1.0.69"
 atomic_float = "0.1.0"
 clap = "4.1.8"
 cpal = "0.15.0"
-
+bevy-inspector-egui = "0.18.3"

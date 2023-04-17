@@ -20,7 +20,8 @@ pub enum AppSet {
     GraphStartup,
     Ui,
     Camera,
-    Graph
+    GraphInteraction,
+    GraphManagement,
 }
 
 pub struct AppPlugins;
